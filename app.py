@@ -27,9 +27,7 @@ if not files:
     st.warning("No articles found.")
     st.stop()
 
-# -----------------------------------
-# Load or Build Sentiment Cache
-# -----------------------------------
+
 sentiment_cache = load_sentiment_cache(CACHE_FILE)
 updated = False
 
@@ -45,9 +43,7 @@ for file in files:
 if updated:
     save_sentiment_cache(CACHE_FILE, sentiment_cache)
 
-# -----------------------------------
-# Single Article View
-# -----------------------------------
+#single article view
 selected_file = st.selectbox("Choose an article", files)
 
 if selected_file:
@@ -78,40 +74,11 @@ if selected_file:
     st.write(f"Sentiment: **{label}**")
     st.write(f"Score: {round(score, 3)}")
 
-# -----------------------------------
-# Sentiment Trend
-# -----------------------------------
-st.subheader("Sentiment Trend Over Time")
-
-dates = []
-scores = []
-
-for file, score in sentiment_cache.items():
-    date = extract_date_from_filename(file)
-    if not date:
-        continue
-    dates.append(date)
-    scores.append(score)
-
-if dates:
-    sorted_data = sorted(zip(dates, scores))
-    dates_sorted, scores_sorted = zip(*sorted_data)
-
-    fig2, ax2 = plt.subplots()
-    ax2.plot(dates_sorted, scores_sorted)
-    ax2.set_xlabel("Date")
-    ax2.set_ylabel("Sentiment Score")
-    ax2.set_title("Sentiment Over Time")
-    plt.xticks(rotation=45)
-    st.pyplot(fig2)
-else:
-    st.write("No valid dates found in filenames.")
 
 
 
-# -----------------------------------
-# Sentiment Distribution (All Articles)
-# -----------------------------------
+
+
 st.subheader("Overall Sentiment Distribution")
 
 positive = 0
@@ -123,11 +90,10 @@ for score in sentiment_cache.values():
         positive += 1
     elif score < -0.05:
         negative += 1
-    else:
-        neutral += 1
 
-labels = ["Positive", "Negative", "Neutral"]
-values = [positive, negative, neutral]
+
+labels = ["Positive", "Negative"]
+values = [positive, negative]
 
 fig3, ax3 = plt.subplots()
 ax3.bar(labels, values)
@@ -137,9 +103,9 @@ st.pyplot(fig3)
 
 
 
-# -----------------------------------
-# Overall Word Frequency (All Articles)
-# -----------------------------------
+
+# word Frequency (all)
+
 st.subheader("Top Overall Word Frequency")
 
 from collections import Counter
@@ -172,9 +138,8 @@ if top_words:
     st.pyplot(fig4)
     
     
-    # -----------------------------------
-# Vocabulary Comparison: Positive vs Negative
-# -----------------------------------
+
+# positive vs negative words
 st.subheader("Vocabulary Comparison: Positive vs Negative Articles")
 
 from collections import Counter
@@ -205,11 +170,11 @@ for file, score in sentiment_cache.items():
     else:
         negative_counter.update(words)
 
-# Top 15 words in each group
+
 top_positive = positive_counter.most_common(15)
 top_negative = negative_counter.most_common(15)
 
-# Plot Positive
+# plot positive
 if top_positive:
     words_pos = [w[0] for w in top_positive]
     counts_pos = [w[1] for w in top_positive]
@@ -220,7 +185,7 @@ if top_positive:
     plt.xticks(rotation=45)
     st.pyplot(fig_pos)
 
-# Plot Negative
+# plot negative
 if top_negative:
     words_neg = [w[0] for w in top_negative]
     counts_neg = [w[1] for w in top_negative]
@@ -232,9 +197,7 @@ if top_negative:
     st.pyplot(fig_neg)
     
 
-    # -----------------------------------
-# TF-IDF Comparison: Positive vs Negative
-# -----------------------------------
+
 st.subheader("TF-IDF Comparison (Positive vs Negative)")
 
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -253,7 +216,7 @@ for file, score in sentiment_cache.items():
 
 if positive_docs and negative_docs:
 
-    # Combine for vectorization
+    # combine for vector
     all_docs = positive_docs + negative_docs
     labels = ["positive"] * len(positive_docs) + ["negative"] * len(negative_docs)
 
@@ -268,7 +231,7 @@ if positive_docs and negative_docs:
 
     import numpy as np
 
-    # Separate groups
+ 
     pos_matrix = tfidf_matrix[:len(positive_docs)]
     neg_matrix = tfidf_matrix[len(positive_docs):]
 
@@ -277,18 +240,18 @@ if positive_docs and negative_docs:
 
     diff = pos_mean - neg_mean
 
-    # Top positive-skew words
+    # top positive-skew words
     top_pos_idx = diff.argsort()[-15:][::-1]
     top_neg_idx = diff.argsort()[:15]
 
-    # Plot Positive Distinctive
+    # plot positive 
     fig1, ax1 = plt.subplots()
     ax1.bar(feature_names[top_pos_idx], diff[top_pos_idx])
     ax1.set_title("TF-IDF Words More Associated with Positive Articles")
     plt.xticks(rotation=45)
     st.pyplot(fig1)
 
-    # Plot Negative Distinctive
+    # plot negative
     fig2, ax2 = plt.subplots()
     ax2.bar(feature_names[top_neg_idx], abs(diff[top_neg_idx]))
     ax2.set_title("TF-IDF Words More Associated with Negative Articles")
@@ -300,9 +263,7 @@ else:
     
 
 
-# -----------------------------------
-# Topic Modeling per Sentiment (LDA)
-# -----------------------------------
+#topic modeling
 st.subheader("Topic Modeling per Sentiment")
 
 from sklearn.decomposition import LatentDirichletAllocation
@@ -341,6 +302,7 @@ def run_lda(docs, title):
     for i, topic in enumerate(topics):
         st.write(f"Topic {i+1}: {topic}")
 
-# Run LDA separately
-run_lda(positive_docs, "Positive Articles")
+# run lda separately
+run_lda(positive_docs, "Positive Articles");
+
 run_lda(negative_docs, "Negative Articles")
