@@ -59,11 +59,11 @@ def chunk_text(text, max_words=400):
         " ".join(words[i:i+max_words])
         for i in range(0, len(words), max_words)
     ]
-
-def analyze_sentiment(text, model):
-    tokenizer = AutoTokenizer.from_pretrained(
+tokenizer = AutoTokenizer.from_pretrained(
         "distilbert-base-uncased-finetuned-sst-2-english"
     )
+def analyze_sentiment(text, model):
+    
 
     tokens = tokenizer(
         text,

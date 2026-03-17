@@ -221,7 +221,7 @@ if positive_docs and negative_docs:
     labels = ["positive"] * len(positive_docs) + ["negative"] * len(negative_docs)
 
     vectorizer = TfidfVectorizer(
-        stop_words="english",
+        stop_words=list(STOPWORDS),
         max_features=2000,
         ngram_range=(1, 1)
     )
@@ -282,7 +282,7 @@ def run_lda(docs, title):
         return
 
     vectorizer = CountVectorizer(
-        stop_words="english",
+        stop_words=list(STOPWORDS),
         max_features=2000
     )
 

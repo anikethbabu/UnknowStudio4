@@ -61,7 +61,11 @@ source .venv/bin/activate
 ```
 
 
+run the code
 
+```bash
+streamlit run app.py
+```
 
 
 
